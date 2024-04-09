@@ -1,71 +1,80 @@
-name: build_kernelsu_for_equuleus
+name: build_kernelsu_for_polaris
 
 on:
-  workflow_dispatch:
-
+    workflow_dispatch:
+    schedule:
+        - cron: "0 4 * * 5"
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps: 
-       - uses: actions/checkout@v1
-        
-       - name: Set swap to 10G
-         uses: pierotofy/set-swap-space@master
-         with:
-           swap-size-gb: 10
+    build:
+        env:
+            useAnykernel: true
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v1
 
-       - name: Setup build kernel environment
-         run: |
-          sudo apt-get update
-          sudo apt install bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libncurses5 libsdl1.2-dev libssl-dev libwxgtk3.0-gtk3-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev make unzip python-is-python3
+            - name: Set swap to 10G
+              uses: pierotofy/set-swap-space@master
+              with:
+                  swap-size-gb: 10
 
-       - name: Download kernel source
-         run: |
-           cd /home/runner
-           git clone https://github.com/CZB666-wdnmd/android_kernel_xiaomi_sdm845.git -b udc-kernelsu --depth=1 kernel_sdm845
-           
-       - name: Download gcc and clang
-         run: |
-           cd /home/runner
-           git clone https://github.com/PixelExperience/prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9.git --depth=1 gcc_aarch64
-           git clone https://github.com/PixelExperience/prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9.git --depth=1 gcc_arm
-           git clone https://github.com/PixelExperience/prebuilts_clang_kernel_linux-x86_clang-r416183b.git --depth=1 clang-r416183b
-           
-       - name: Patch kernel source
-         run: |
-           cd /home/runner/kernel_sdm845
-           curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
-           cd /home/runner/kernel_sdm845/KernelSU
-           expr 10000 + $(git rev-list --count HEAD) + 200 > /home/runner/ksu_ver
-           git config --global user.email "asfasdas@gmail.com"
-           git config --global user.name "asdasfgas"
-           git remote add target https://github.com/CZB666-wdnmd/KernelSU.git
-           git fetch target
-           git cherry-pick -n 7e495e606a70653e3e9e4c3d082d99fb6b6958c4 e407b54d8865a7d190e3b65bdf59902277eebedf
+            - name: Setup build kernel environment
+              run: |
+                  sudo apt-get update
+                  sudo apt install bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf imagemagick lib32ncurses5-dev lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libncurses5 libsdl1.2-dev libssl-dev libwxgtk3.0-gtk3-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev make unzip python-is-python3
 
-       - name: Build
-         run: |
-           cd /home/runner/kernel_sdm845
-           PATH="/home/runner/clang-r416183b/bin:${PATH}"
-           cat ./arch/arm64/configs/vendor/xiaomi/mi845_defconfig > ./arch/arm64/configs/vendor/xiaomi/equuleus_defconfig
-           cat ./arch/arm64/configs/vendor/xiaomi/equuleus.config >> ./arch/arm64/configs/vendor/xiaomi/equuleus_defconfig
-           make O=out ARCH=arm64 vendor/xiaomi/equuleus_defconfig
-           make -j$(nproc --all) O=out CC=clang ARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=/home/runner/gcc_aarch64/bin/aarch64-linux-android- CROSS_COMPILE_ARM32=/home/runner/gcc_arm/bin/arm-linux-androideabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM_IAS=1 LLVM=1
-           
-       - name: Make boot.img
-         run: |
-           cd /home/runner/
-           git clone https://github.com/CZB666-wdnmd/kernelsu_xiaomi_equuleus_action.git bootedit
-           cp /home/runner/kernel_sdm845/out/arch/arm64/boot/Image  /home/runner/bootedit/img/kernel
-           cd /home/runner/bootedit/img
-           chmod +x ./magiskboot
-           ./magiskboot repack ./boot.img ./ksu-boot.img
-           echo "KernelSU version: "+$(cat /home/runner/ksu_ver) >> $GITHUB_STEP_SUMMARY
-           echo "Boot image for evolution_equuleus-uq1a.240105.004-01300259-UNOFFICIAL" >> $GITHUB_STEP_SUMMARY
-           
-       - name: Upload boot.img
-         if: success()
-         uses: actions/upload-artifact@v3
-         with:
-           name: ksu-boot.img
-           path: "/home/runner/bootedit/img/ksu-boot.img"
+            - name: Download kernel source
+              run: |
+                  cd /home/runner
+                  git clone https://github.com/Initsnow/android_kernel_xiaomi_sdm845.git -b lineage-21 --depth=1 kernel_sdm845
+
+            - name: Download gcc and clang
+              run: |
+                  cd /home/runner
+                  git clone https://github.com/PixelExperience/prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9.git --depth=1 gcc_aarch64
+                  git clone https://github.com/PixelExperience/prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9.git --depth=1 gcc_arm
+                  git clone https://github.com/PixelExperience/prebuilts_clang_kernel_linux-x86_clang-r416183b.git --depth=1 clang-r416183b
+
+            - name: Patch kernel source
+              run: |
+                  cd /home/runner/kernel_sdm845
+                  curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+                  cd /home/runner/kernel_sdm845/KernelSU
+                  expr 10000 + $(git rev-list --count HEAD) + 200 > /home/runner/ksu_ver
+
+            - name: Build
+              run: |
+                  cd /home/runner/kernel_sdm845
+                  PATH="/home/runner/clang-r416183b/bin:${PATH}"
+                  cat ./arch/arm64/configs/vendor/xiaomi/mi845_defconfig > ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
+                  cat ./arch/arm64/configs/vendor/xiaomi/polaris.config >> ./arch/arm64/configs/vendor/xiaomi/polaris_defconfig
+                  make O=out ARCH=arm64 vendor/xiaomi/polaris_defconfig
+                  make -j$(nproc --all) O=out CC=clang ARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=/home/runner/gcc_aarch64/bin/aarch64-linux-android- CROSS_COMPILE_ARM32=/home/runner/gcc_arm/bin/arm-linux-androideabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM_IAS=1 LLVM=1
+            - name: Print date
+              run: echo ${{ env.START_TIME }}
+            - name: Pack AnyKernel3.zip
+              run: |
+                  cd /home/runner/kernel_sdm845
+                  git clone --recursive --depth=1 -j $(nproc) --branch polaris https://github.com/Shuery-Shuai/AnyKernel3.git AnyKernel3
+                  cp out/arch/arm64/boot/Image AnyKernel3/
+                  cp out/arch/arm64/boot/Image.gz AnyKernel3/
+                  cp out/arch/arm64/boot/Image.gz-dtb AnyKernel3/
+                  cd /home/runner/kernel_sdm845/AnyKernel3
+
+                  echo "KernelSU version: "$(cat /home/runner/ksu_ver) >> $GITHUB_STEP_SUMMARY
+                  echo "Flash zip using recovery" >> $GITHUB_STEP_SUMMARY
+
+            - name: "Upload AnyKernel3 image"
+              uses: actions/upload-artifact@v3
+              if: success()
+              with:
+                  name: "AnyKernel3"
+                  path: "/home/runner/kernel_sdm845/AnyKernel3/*"
+
+            - name: "Create GitHub Release"
+              continue-on-error: true
+              uses: softprops/action-gh-release@v1
+              if: ${{ env.useAnykernel == 'true'}}
+              with:
+                  tag_name: "v${{ env.START_TIME }}.${{ github.run_number }}"
+                  files: "/home/runner/kernel_sdm845/AnyKernel3/AnyKernel3.zip"
+                  generate_release_notes: true
