@@ -50,7 +50,8 @@ jobs:
                   make O=out ARCH=arm64 vendor/xiaomi/polaris_defconfig
                   make -j$(nproc --all) O=out CC=clang ARCH=arm64 CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=/home/runner/gcc_aarch64/bin/aarch64-linux-android- CROSS_COMPILE_ARM32=/home/runner/gcc_arm/bin/arm-linux-androideabi- AR=llvm-ar NM=llvm-nm OBJCOPY=llvm-objcopy OBJDUMP=llvm-objdump STRIP=llvm-strip LLVM_IAS=1 LLVM=1
             - name: Print date
-              run: echo ${{ env.START_TIME }}
+              run: |
+                  echo ${{ env.START_TIME }}
             - name: Pack AnyKernel3.zip
               run: |
                   cd /home/runner/kernel_sdm845
@@ -59,6 +60,7 @@ jobs:
                   cp out/arch/arm64/boot/Image.gz AnyKernel3/
                   cp out/arch/arm64/boot/Image.gz-dtb AnyKernel3/
                   cd /home/runner/kernel_sdm845/AnyKernel3
+                  zip -r ../AnyKernel3.zip *
 
                   echo "KernelSU version: "$(cat /home/runner/ksu_ver) >> $GITHUB_STEP_SUMMARY
                   echo "Flash zip using recovery" >> $GITHUB_STEP_SUMMARY
@@ -76,5 +78,5 @@ jobs:
               if: ${{ env.useAnykernel == 'true'}}
               with:
                   tag_name: "v${{ env.START_TIME }}.${{ github.run_number }}"
-                  files: "/home/runner/kernel_sdm845/AnyKernel3/AnyKernel3.zip"
+                  files: "/home/runner/kernel_sdm845/AnyKernel3.zip"
                   generate_release_notes: true
