@@ -78,5 +78,6 @@ jobs:
               if: ${{ env.useAnykernel == 'true'}}
               with:
                   tag_name: "v${{ env.START_TIME }}.${{ github.run_number }}"
+                  body: "KernelSU version: $(cat /home/runner/ksu_ver)"
                   files: "/home/runner/kernel_sdm845/AnyKernel3.zip"
                   generate_release_notes: true
