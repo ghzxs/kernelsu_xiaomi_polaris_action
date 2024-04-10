@@ -76,7 +76,7 @@ jobs:
           cd /home/runner/kernel_sdm845/AnyKernel3
           zip -r ../AnyKernel3.zip *
 
-          echo "KernelSU version: ${{ env.START_TIME }}" >> $GITHUB_STEP_SUMMARY
+          echo "KernelSU version: ${{ env.KSU_VER }}" >> $GITHUB_STEP_SUMMARY
           echo "Flash zip using recovery" >> $GITHUB_STEP_SUMMARY
 
       - name: "Upload AnyKernel3 image"
