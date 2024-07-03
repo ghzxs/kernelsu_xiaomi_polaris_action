@@ -51,7 +51,7 @@ jobs:
           cd /home/runner
           git clone https://github.com/PixelExperience/prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9.git --depth=1 gcc_aarch64
           git clone https://github.com/PixelExperience/prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9.git --depth=1 gcc_arm
-          git clone https://github.com/PixelExperience/prebuilts_clang_kernel_linux-x86_clang-r450784d.git --depth=1 clang-r416183b
+          git clone https://github.com/PixelExperience/prebuilts_clang_kernel_linux-x86_clang-r416183b.git --depth=1 clang-r416183b
 
       - name: Patch kernel source
         run: |
