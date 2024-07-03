@@ -44,20 +44,20 @@ jobs:
       - name: Download kernel source
         run: |
           cd /home/runner
-          git clone https://github.com/ghzxs/android_kernel_xiaomi_sdm845.git -b lineage-21 --depth=1 kernel_sdm845
+          git clone https://github.com/Initsnow/android_kernel_xiaomi_sdm845.git -b lineage-21 --depth=1 kernel_sdm845
 
       - name: Download gcc and clang
         run: |
           cd /home/runner
           git clone https://github.com/PixelExperience/prebuilts_gcc_linux-x86_aarch64_aarch64-linux-android-4.9.git --depth=1 gcc_aarch64
           git clone https://github.com/PixelExperience/prebuilts_gcc_linux-x86_arm_arm-linux-androideabi-4.9.git --depth=1 gcc_arm
-          git clone https://github.com/PixelExperience/prebuilts_clang_kernel_linux-x86_clang-r416183b.git --depth=1 clang-r416183b
+          git clone https://github.com/PixelExperience/prebuilts_clang_kernel_linux-x86_clang-r450784d.git --depth=1 clang-r416183b
 
       - name: Patch kernel source
         run: |
           cd /home/runner/kernel_sdm845
-          # curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s b766b98513b5a7eb33bc1c4a76b5702bf1288f07
-          curl -LSs "https://raw.githubusercontent.com/Initsnow/KernelSU_Patch/main/kernel/setup.sh" | bash -s main
+          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
+          # curl -LSs "https://raw.githubusercontent.com/Initsnow/KernelSU_Patch/main/kernel/setup.sh" | bash -s main
       - name: Build
         run: |
           cd /home/runner/kernel_sdm845
