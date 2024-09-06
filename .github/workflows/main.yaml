@@ -55,9 +55,15 @@ jobs:
 
       - name: Patch kernel source
         run: |
-          cd /home/runner/kernel_sdm845
-          curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
-          # curl -LSs "https://raw.githubusercontent.com/Initsnow/KernelSU_Patch/main/kernel/setup.sh" | bash -s main
+          ccd /home/runner/kernel_sdm845
+           curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s main
+           cd /home/runner/kernel_sdm845/KernelSU
+           expr 10000 + $(git rev-list --count HEAD) + 200 > /home/runner/ksu_ver
+           git config --global user.email "asfasdas@gmail.com"
+           git config --global user.name "asdasfgas"
+           git remote add target https://github.com/CZB666-wdnmd/KernelSU.git
+           git fetch target
+           git cherry-pick -n 7e495e606a70653e3e9e4c3d082d99fb6b6958c4 e407b54d8865a7d190e3b65bdf59902277eebedf
       - name: Build
         run: |
           cd /home/runner/kernel_sdm845
